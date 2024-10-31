@@ -6,6 +6,7 @@
 
 ### Improved
 - added compatibility with The Checkout (thecheckout) module
+- added website and module versions to the request which is sent to Venipak
 
 ## [1.1.8] - 2024-10-08
 ### Improved
