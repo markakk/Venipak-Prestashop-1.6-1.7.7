@@ -1958,7 +1958,8 @@ class MijoraVenipak extends CarrierModule
                     if ($address->company || $customer->company) {
                         $consignee_name = $address->company ?: $customer->company;
                         if (!$address->dni && !$address->vat_number && !$customer->siret) {
-                            $errors[$order_id][] = $this->l('Company code is missing');
+                            $errors[$order_id][] = $this->l('Company code is missing') . ' <i><b>*</b></i>';
+                            $errors['other']['company_code'] = true;
                             continue;
                         }
                         if(!empty($address->dni)) {
@@ -2214,6 +2215,11 @@ class MijoraVenipak extends CarrierModule
             $errors['other'][] = $this->l('None of the selected orders have a Venipak shipping method');
         } else if (!empty($notfound_ids)) {
             $errors['other'][] = sprintf($this->l('Shipping method for orders %s is not Venipak.'), implode(', ', $notfound_ids));
+        }
+
+        if (isset($errors['other']['company_code'])) {
+            unset($errors['other']['company_code']); // Move info message to the end of the array
+            $errors['other']['company_code'] = '<i><b>*</b> ' . $this->l('It was detected that the company name is specified in the Order, but the company code is not specified. For sending shipment to the company, requires both of these parameters to be specified.') . '</i>';
         }
 
         $prepared_errors = array();
