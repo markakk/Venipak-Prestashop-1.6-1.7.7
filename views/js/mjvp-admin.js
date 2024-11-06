@@ -74,7 +74,7 @@ window.mijoraVenipak = {
         // Clean html tags
         if(Array.isArray(msg))
             msg = msg[0];
-        msg = msg.replace(/<\/?[^>]+(>|$)/g, "");
+        msg = msg.replace(/<(?!\/?(i|b)\b)[^>]+>/g, "");
         $('.venipak .response').find('ol').addClass('mb-0').append(`<li>${msg}</li>`);
         $('.venipak .response').show();
     },
