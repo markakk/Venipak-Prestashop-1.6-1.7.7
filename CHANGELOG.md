@@ -7,6 +7,7 @@
 ### Improved
 - added compatibility with The Checkout (thecheckout) module
 - added website and module versions to the request which is sent to Venipak
+- admin javascript functions have been moved to a global variable to avoid conflicts with other modules
 
 ## [1.1.8] - 2024-10-08
 ### Improved
