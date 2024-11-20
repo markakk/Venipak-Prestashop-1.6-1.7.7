@@ -103,7 +103,7 @@ class MjvpApi extends MjvpBase
 
     public function buildManifestNumber($login_id, $serial_number)
     {
-        return $login_id . date('ymd') . sprintf('%03d', (int)$serial_number);
+        return trim($login_id) . date('ymd') . sprintf('%03d', (int)$serial_number);
     }
 
     /**
@@ -140,7 +140,7 @@ class MjvpApi extends MjvpBase
         $xml_code .= '<country>' . $params['sender']['country_code'] . '</country>';
         $xml_code .= '<city>' . $params['sender']['city'] . '</city>';
         $xml_code .= '<address>' . $params['sender']['address'] . '</address>';
-        $xml_code .= '<post_code>' . $params['sender']['postcode'] . '</post_code>';
+        $xml_code .= '<post_code>' . $this->clearPostcode($params['sender']['postcode'], $params['sender']['country_code']) . '</post_code>';
         $xml_code .= '<contact_person>' . $params['sender']['contact_person'] . '</contact_person>';
         $xml_code .= '<contact_tel>' . $params['sender']['contact_phone'] . '</contact_tel>';
         $xml_code .= '<contact_email>' . $params['sender']['contact_email'] . '</contact_email>';
@@ -165,13 +165,17 @@ class MjvpApi extends MjvpBase
     public function buildCustomAddress($type)
     {
         $cModuleConfig = $this->module->getModuleService('MjvpModuleConfig');
+
+        $country = Configuration::get($cModuleConfig->getConfigKey('shop_country_code', 'SHOP'));
+        $postcode = Configuration::get($cModuleConfig->getConfigKey('shop_postcode', 'SHOP'));
+
         $xml_code = "<{$type}>";
         $xml_code .= '<name>' . Configuration::get($cModuleConfig->getConfigKey('sender_name', 'SHOP')) . '</name>';
         $xml_code .= '<company_code>' . Configuration::get($cModuleConfig->getConfigKey('company_code', 'SHOP'))  . '</company_code>';
-        $xml_code .= '<country>' . Configuration::get($cModuleConfig->getConfigKey('shop_country_code', 'SHOP'))  . '</country>';
+        $xml_code .= '<country>' . $country  . '</country>';
         $xml_code .= '<city>' . Configuration::get($cModuleConfig->getConfigKey('shop_city', 'SHOP')) . '</city>';
         $xml_code .= '<address>' . Configuration::get($cModuleConfig->getConfigKey('shop_address', 'SHOP'))  . '</address>';
-        $xml_code .= '<post_code>' . Configuration::get($cModuleConfig->getConfigKey('shop_postcode', 'SHOP'))  . '</post_code>';
+        $xml_code .= '<post_code>' . $this->clearPostcode($postcode, $country)  . '</post_code>';
         $xml_code .= '<contact_person>' . Configuration::get($cModuleConfig->getConfigKey('shop_name', 'SHOP'))  . '</contact_person>';
         $xml_code .= '<contact_tel>' . Configuration::get($cModuleConfig->getConfigKey('shop_phone', 'SHOP')) . '</contact_tel>';
         $xml_code .= '<contact_email>' . Configuration::get($cModuleConfig->getConfigKey('shop_email', 'SHOP'))  . '</contact_email>';
@@ -214,7 +218,7 @@ class MjvpApi extends MjvpBase
         $xml_code .= '<country>' . $params['consignee']['country_code'] . '</country>';
         $xml_code .= '<city>' . $params['consignee']['city'] . '</city>';
         $xml_code .= '<address>' . $params['consignee']['address'] . '</address>';
-        $xml_code .= '<post_code>' . $this->getConsigneePostcode($params['consignee']['postcode'], $params['consignee']['country_code']) . '</post_code>';
+        $xml_code .= '<post_code>' . $this->clearPostcode($params['consignee']['postcode'], $params['consignee']['country_code']) . '</post_code>';
         $xml_code .= '<contact_person>' . $params['consignee']['person'] . '</contact_person>';
         $xml_code .= '<contact_tel>' . $params['consignee']['phone'] . '</contact_tel>';
         $xml_code .= '<contact_email>' . $params['consignee']['email'] . '</contact_email>';
@@ -259,7 +263,7 @@ class MjvpApi extends MjvpBase
         return $xml_code;
     }
 
-    private function getConsigneePostcode($postcode, $country)
+    private function clearPostcode($postcode, $country)
     {
         if ($country == 'LV' || $country == 'PL') {
             return preg_replace('/[^0-9]/', '', $postcode);
@@ -270,7 +274,7 @@ class MjvpApi extends MjvpBase
 
     public function buildTrackingNumber($login_id, $serial_number)
     {
-        return 'V' . $login_id . 'E' . sprintf('%07d', (int)$serial_number);
+        return 'V' . trim($login_id) . 'E' . sprintf('%07d', (int)$serial_number);
     }
 
     /**
@@ -567,8 +571,11 @@ class MjvpApi extends MjvpBase
 
         $cModuleConfig = $this->module->getModuleService('MjvpModuleConfig');
         $endpoint = (isset($params['use_live_endpoint']) && $params['use_live_endpoint']) || Configuration::get($cModuleConfig->getConfigKey('live_mode', 'API')) ? $this->_liveCurlUrl : $this->_curlUrl;
-        $reference_header = "Reference: Prestashop " . _PS_VERSION_;
-        $headers = [$reference_header];
+        $headers = array(
+            "client-software-name: Prestashop",
+            "client-software-version: " . _PS_VERSION_,
+            "client-module-version: " . $this->module->version,
+        );
         $curl_options = array(
             CURLOPT_URL => $endpoint . $url_suffix . $url_query,
             CURLOPT_RETURNTRANSFER => true,

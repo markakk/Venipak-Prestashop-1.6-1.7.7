@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.1.9] - 2024-11-20
+### Fixed
+- fixed that the Venipak Manifests page could also be viewed by administrators with lower rights
+
+### Improved
+- added compatibility with The Checkout (thecheckout) module
+- added website and module versions to the request which is sent to Venipak
+- admin javascript functions have been moved to a global variable to avoid conflicts with other modules
+- added an additional information message when the company name is specified in the order, but the company code is not specified
+- improved that italic and bold tags can be used in the message
+- added removing spaces before and after API ID value
+- added postcode fix for sender
+
 ## [1.1.8] - 2024-10-08
 ### Improved
 - added display of error messages when executing mass action
