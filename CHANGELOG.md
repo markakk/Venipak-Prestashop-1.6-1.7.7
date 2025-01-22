@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+### Fixed
+- fixed the "Set as default warehouse" parameter in Warehouse edit page
+
 ## [1.1.9] - 2024-11-20
 ### Fixed
 - fixed that the Venipak Manifests page could also be viewed by administrators with lower rights
