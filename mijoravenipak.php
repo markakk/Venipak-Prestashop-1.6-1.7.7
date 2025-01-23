@@ -662,7 +662,7 @@ class MijoraVenipak extends CarrierModule
     public function deleteCarrier($key)
     {
         $carrier = new Carrier((int) (Configuration::get($key)));
-        if (!$carrier) {
+        if (!$carrier || !Validate::isLoadedObject($carrier)) {
             return true; // carrier doesnt exist, no further action needed
         }
 
